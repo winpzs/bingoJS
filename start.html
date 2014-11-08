@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <!--通过指令bg-controller与control连接-->
+    <div bg-controller="control">
+
+        <!--通过指令bg-text绑定hello变量-->
+        <p bg-text="hello"></p>
+
+        <!--通过标签绑定hello变量-->
+        <p>tag: {{hello}}</p>
+
+        <!--通过指令bg-click绑定事件-->
+        <button bg-click="clickMe">点击我</button>
+    </div>
+
+    <!--启动bingoJS需用依赖jQuery-->
+    <script src="scripts/jquery-1.8.1.min.js"></script>
+    <!--引入bingoJS会自动启动-->
+    <script src="scripts/bingo.js"></script>
+
+    <script type="text/javascript">
+        //定义contoller
+        var control = function ($view) {
+            //定义view的hello变量, 并设置值
+            $view.hello = 'hello world!';
+
+            $view.clickMe = function () {
+                //点击, 改变变量hello内容
+                $view.hello = 'hello world! click Me on: ' + new Date().toString();
+            };
+        };
+    </script>
+</body>
+</html>
