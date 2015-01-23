@@ -6,12 +6,12 @@
     'use strict';
 
     $.fn.extend({
-        showLoading: function () {
+        showLoading: function (opacity) {
             return this.each(function () {
                 $(this).block({
                     message: '<img src="../bootstrap/js/blockUI/busy.gif" />',
                     css: { backgroundColor: '', color: '', border: '0px', cursor: 'pointer' },
-                    overlayCSS: { backgroundColor: '#FFF', opacity: 1, cursor: 'pointer' }, fadeIn: 0, fadeOut: 0
+                    overlayCSS: { backgroundColor: '#FFF', opacity: bingo.isNumeric(opacity) ? opacity : 1, cursor: 'pointer' }, fadeIn: 0, fadeOut: 0
                 });
             });
         },
@@ -123,7 +123,7 @@
                 var url = this.url(), node = this.node(), $tmpl = this._tmpl();
                 if (url) {
                     var $this = this, viewNode = $(node);
-                    viewNode.showLoading();
+                    viewNode.showLoading(0.1);
                     //通过$tmpl的fromUrl加载模板内容, 插入到document.body,  编译
                     $tmpl.fromUrl(url).appendTo(document.body).controller(function ($view, $node) {
 
