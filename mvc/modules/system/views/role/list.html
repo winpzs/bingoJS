@@ -1,0 +1,50 @@
+﻿<div class="row-fluid" style="visibility: hidden;"
+    bg-controller="ctrl/system/role/list">
+    <div class="span12">
+        <p>
+            <button class="btn btn-small btn-success"
+                bg-click="role.create()"><i class="icon-asterisk"></i> 创建角色</button>
+            <button class="btn btn-small btn-success"
+                bg-click="role.delAll()"><i class="icon-asterisk"></i> 删除所有</button>
+        </p>
+        <table id="table_bug_report" class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th class="center" style="width:40px;">
+                        <label>
+                            <input type="checkbox" /><span class="lbl"></span></label>
+                    </th>
+                    <th>角色</th>
+                    <th class="hidden-480">备注</th>
+                    <th style="width:120px;">记录数:{{role.list.length}}</th>
+                </tr>
+            </thead>
+            <!--bg-render模板内容可以用script包装, 这样更好解决浏览解释问题-->
+            <tbody bg-render="item in role.list">
+                <script type="text/html">
+                    <tr>
+                        <td class="center">
+                            <label>
+                                <input type="checkbox" /><span class="lbl"></span></label>
+                        </td>
+                        <td><a href="javascript:void(0)"
+                            bg-click="role.viewInfo(item)">${item.name}</a></td>
+                        <td class="hidden-480">${item.desc}</td>
+                        <td>
+                            <div class="hidden-phone visible-desktop btn-group">
+                                <!--绑定标签bg-click可以使用模板item变量,
+                                     可以完全让view与controller分离开发-->
+                                <button class="btn btn-mini btn-info"
+                                    bg-click="role.edit(item)"><i class="icon-edit"></i></button>
+
+                                <!--bg-event可以使用自定义事件-->
+                                <button class="btn btn-mini btn-danger"
+                                    bg-event="{ click: function(){role.doDelete(item);} }"><i class="icon-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </script>
+            </tbody>
+        </table>
+    <!--/span-->
+</div>

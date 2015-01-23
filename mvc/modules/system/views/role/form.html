@@ -1,0 +1,26 @@
+﻿<div class="modal hide fade" tabindex="-1" data-width="760"
+    bg-controller="ctrl/system/role/form">
+    <div class="modal-header">
+        <a href="javascript:;" class="close" data-dismiss="modal">×</a>
+        <h3>角色信息</h3>
+    </div>
+    <div class="modal-body">
+        <div class="scroller" style="height: 100px" data-always-visible="1" data-rail-visible1="1">
+            <div class="row-fluid">
+                <div class="span12">
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="角色"
+                            bg-model="role.name" ></p>
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="备注"
+                            bg-model="role.desc"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" bg-hide="isView">
+        <button type="button" data-dismiss="modal" class="btn">取消</button>
+        <button type="button" class="btn btn-success"
+            bg-click="save()">提交</button>
+    </div>
+</div>

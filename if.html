@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <div id="testView" bg-controller="control">
+        <div bg-if="isOk | eq:'1'"><span>你选择了 "真"</span></div>
+        <div bg-if="isOk | neq:'1'"><span>你选择了 "假"</span></div>
+        <select bg-model="isOk">
+            <option value="1">真</option>
+            <option value="0">假</option>
+        </select>
+    </div>
+    <script type="text/javascript">
+        var control = function ($view, $node) {
+            $view.isOk = '1';
+        };
+    </script>
+    <script src="scripts/jquery-1.8.1.min.js"></script>
+    <script src="scripts/bingo.js"></script>
+</body>
+</html>

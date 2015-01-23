@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <div id="testView" bg-controller="control">
+        <input bg-model="width" />
+        width: {{width}}
+        <div style="width: 100px; height: 10px; background-color: red"></div>
+        <select bg-tmpl="item in list">
+            <option value="${item.id}">text_${item.text}</option>
+        </select>
+        <select bg-foreach="item in list" tmpl-id="tmpl1"></select>
+        <select bg-foreach="item in list" tmpl-url="tmpl_tmpl.html"></select>
+    </div>
+    <script type="text/html" id="tmpl1">
+        <option value="${item.id}">text_id_${item.text}</option>
+    </script>
+    <script src="scripts/jquery-1.8.1.min.js"></script>
+    <script src="scripts/bingo.js"></script>
+
+    <script type="text/javascript">
+        var control = function ($view, $node) {
+            $view.width = 100;
+            $view.list = [{ id: 1, text: "111" }, { id: 2, text: "222" }];
+            $view.$subs('width', function () {
+                $node.find('div').width($view.width);
+            });
+        };
+    </script>
+</body>
+</html>

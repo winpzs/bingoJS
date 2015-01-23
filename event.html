@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <div id="Div1" bg-controller="control">
+        <button bg-event="{click:clickTest}">event方式</button>
+        <button bg-click="clickTest">事件方式1</button>
+        <button bg-click="clickAlert('test')">事件方式2</button>
+        <div bg-controller="control11" ></div>
+    </div>
+    <script type="text/javascript">
+        var control = function ($view, $node) {
+            $view.clickTest = function (e) {
+                alert('click');
+            };
+            $view.clickAlert = function (msg) {
+                alert(msg);
+            };
+            $view.control11 = function ($view) {
+                console.log('control11');
+            };
+        };
+    </script>
+    <script src="scripts/jquery-1.8.1.min.js"></script>
+    <script src="scripts/bingo.js"></script>
+</body>
+</html>

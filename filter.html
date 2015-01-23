@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <div id="Div1" bg-controller="control">
+        <span bg-show="testSW | sw:['1', true, false]">显示: 1</span>
+        <span bg-show="testSW | sw:['2', true, false]">显示: 2</span>
+        <span bg-show="testSW | sw:['3', true, false]">显示: 3</span>
+
+        <div>
+            <input type="radio" name="test" value="1" bg-model="testSW" />
+            <input type="radio" name="test" value="2" bg-model="testSW" />
+            <input type="radio" name="test" value="3" bg-model="testSW" />
+        </div>
+    </div>
+    <script type="text/javascript">
+        var control = function ($view, $node) {
+            $view.testSW = "3";
+        };
+    </script>
+    <script src="scripts/jquery-1.8.1.min.js"></script>
+    <script src="scripts/bingo.js"></script>
+</body>
+</html>

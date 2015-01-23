@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <div id="testView" bg-controller="control">
+        <div bg-include="#tmpl1"></div>
+        <div bg-include="include_tmpl.html"></div>
+    </div>
+    <script type="text/html" id="tmpl1">
+        <p>include by Id #tmpl1: {{selectValue}}</p>
+        <select bg-foreach="item in list" bg-model="selectValue">
+            <option value="${item.id}">text_${item.text}</option>
+        </select>
+    </script>
+    <script src="scripts/jquery-1.8.1.min.js"></script>
+    <script src="scripts/bingo.js"></script>
+
+    <script type="text/javascript">
+
+        var control = function ($view, $node) {
+            $view.list = [{ id: 1, text: "111" }, { id: 2, text: "222" }];
+            $view.selectValue = '2';
+            //$view.$subs('selectValue', function (newValue) {
+            //    console.log(newValue);
+            //});
+        };
+    </script>
+</body>
+</html>

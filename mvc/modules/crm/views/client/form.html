@@ -1,0 +1,44 @@
+﻿<div class="modal hide fade" tabindex="-1" data-width="760"
+    bg-controller="ctrl/crm/client/form">
+    <div class="modal-header">
+        <a href="javascript:;" class="close" data-dismiss="modal">×</a>
+        <h3>角色信息</h3>
+    </div>
+    <div class="modal-body">
+        <div class="scroller" style="height: 100px" data-always-visible="1" data-rail-visible1="1">
+            <div class="row-fluid">
+                <div class="span12">
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="客户"
+                            bg-model="client.name" ></p>
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="电话"
+                            bg-model="client.tel" ></p>
+                    <p>
+                        <select class="span12 m-wrap"
+                            bg-model="client.sex">
+                            <option value="">保密</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                        </p>
+                    <p>
+                        <select class="span12 m-wrap"
+                            bg-render="item in users"
+                            bg-model="client.user">
+                            <option value="${item.id}">${item.name | text}</option>
+                        </select>
+                    </p>
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="备注"
+                            bg-model="client.desc"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" bg-hide="isView">
+        <button type="button" data-dismiss="modal" class="btn">取消</button>
+        <button type="button" class="btn btn-success"
+            bg-click="save()">提交</button>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+﻿<div class="modal hide fade" tabindex="-1" data-width="760"
+    bg-controller="ctrl/system/user/form">
+
+    <div class="modal-header">
+        <a href="javascript:;" class="close" data-dismiss="modal">×</a>
+        <h3>用户信息</h3>
+    </div>
+    <div class="modal-body">
+        <div class="scroller" style="height: 195px" data-always-visible="1" data-rail-visible1="1">
+            <div class="row-fluid">
+                <div class="span6">
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="用户名称"
+                            bg-model="user.name">
+                    </p>
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="登录帐号"
+                            bg-model="user.loginId">
+                    </p>
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="邮箱"
+                            bg-model="user.email">
+                    </p>
+                </div>
+                <div class="span6">
+                    <p>
+                        <select class="span12 m-wrap"
+                            bg-render="item in roles"
+                            bg-model="user.role">
+                            <option value="${item.id}">${item.name | text}</option>
+                        </select>
+                    </p>
+                    <p>
+                        <select class="span12 m-wrap"
+                            bg-model="user.sex">
+                            <option value="">保密</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </p>
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="手机"
+                            bg-model="user.phone">
+                    </p>
+                </div>
+                <div class="row-fluid">
+                    <p>
+                        <input type="text" class="span12 m-wrap" placeholder="备注"
+                            bg-model="user.desc">
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" bg-hide="isView">
+        <button type="button" data-dismiss="modal" class="btn">取消</button>
+        <button type="button" class="btn btn-success"
+            bg-click="save()">
+            提交</button>
+    </div>
+</div>

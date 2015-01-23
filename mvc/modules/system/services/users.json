@@ -1,0 +1,28 @@
+﻿[{
+    "id":"1",
+    "name": "张三",
+    "loginId": "admin",
+    "role": "1",
+    "sex":"男",
+    "email": "xxx@xx.com",
+    "phone": "136000123456",
+    "desc":"系统管理员"
+},{
+    "id":"2",
+    "name": "小珊",
+    "loginId": "test",
+    "role": "2",
+    "sex":"女",
+    "email": "xxx@xx.com",
+    "phone": "13600066666",
+    "desc":"系统测试员"
+},{
+    "id":"3",
+    "name": "ddd",
+    "loginId": "test",
+    "role": "2",
+    "sex":"",
+    "email": "xxx@xx.com",
+    "phone": "13600066666",
+    "desc":"系统测试员"
+}]

@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+</head>
+<body>
+    <div id="Div1" bg-controller="control">
+
+        <div>input: <input type="text" bg-model="data.input" /></div>
+
+        <div>select: <select bg-model="data.select">
+                <option value="1">1111</option>
+                <option value="2">222</option>
+            </select>
+        </div>
+
+        <div>checkbox: <input type="checkbox" value="chk" bg-model="data.checkbox" /></div>
+
+        <div>radio:
+            <input type="radio" value="rd1" name="rr" bg-model="data.radio" />
+            <input type="radio" value="rd2" name="rr" bg-model="data.radio" />
+        </div>
+
+        <div>textarea: <textarea bg-model="data.textarea"></textarea> </div>
+
+        <button bg-click="save">提交</button>
+        <div>结果:<br /> <textarea style="width:500px;height:180px;" bg-model="results"></textarea> </div>
+    </div>
+    <script type="text/javascript">
+        var control = function ($view, $node, $model) {
+            //定义$model, 可以更灵活实现绑定和观察
+            $view.data = $model({
+                input: '1',
+                select: '2',
+                checkbox:'chk',
+                radio: 'rd1',
+                textarea: 'text'
+            });
+
+            //$model对象的属性都是可观察的
+            //如: 观察textarea属性
+            $view.data.textarea.$subs(function (value) { console.log(value); });
+
+            $view.results = '';
+
+            $view.save = function () {
+                var data = $view.data.toObject();
+                $view.results = JSON.stringify(data);
+            };
+        };
+    </script>
+    <script src="scripts/jquery-1.8.1.min.js"></script>
+    <script src="scripts/JSON.js"></script>
+    <script src="scripts/bingo.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+﻿<p>include by url include_tmpl.html: {{selectValue}}</p>
+<select bg-foreach="item in list" bg-model="selectValue">
+    <option value="${item.id}">tmpl_${item.text}</option>
+</select>
