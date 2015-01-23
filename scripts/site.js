@@ -122,7 +122,8 @@
             show: function () {
                 var url = this.url(), node = this.node(), $tmpl = this._tmpl();
                 if (url) {
-                    var $this = this;
+                    var $this = this, viewNode = $(node);
+                    viewNode.showLoading();
                     //通过$tmpl的fromUrl加载模板内容, 插入到document.body,  编译
                     $tmpl.fromUrl(url).appendTo(document.body).controller(function ($view, $node) {
 
@@ -135,6 +136,8 @@
                         $this.__showLoading();
                         $view.on('ready', function () {
                             if ($view.isDisposed) return;
+                            viewNode.hideLoading();
+
                             //console.log('ready');
                             $node.on('show.bs.modal', function () {
                                 //$this.showLoading && $this.showLoading();

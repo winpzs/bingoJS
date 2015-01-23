@@ -1815,6 +1815,10 @@
                 //node可选
                 return _compiles.getDomnode(node || this.node);
             },
+            $getNode: function (jqSelector) {
+                var jo = this._$node_ || (this._$node_ = $(this.node));
+                return arguments.length == 0 ? jo : jo.find(jqSelector);
+            },
             $update: function () { return this.$publish(); },
             $updateAsync: function () {
                 if (this._isReady_ === true) {
