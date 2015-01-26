@@ -1,6 +1,28 @@
 ﻿
 //site.js 主要是为整个项目定义全局内容
 
+
+//document.body controller ======================================================
+(function (bingo) {
+    'use strict';
+    
+    //document.body controller
+    window.bodyController = function ($view) {
+
+        var $location = bingo.location($(document.body).find('div[bg-frame-name="main"]'));
+        $location.onChange(function () {
+            $(this).showLoading();
+        });
+        $location.onLoaded(function () {
+            $(this).hideLoading();
+        });
+
+    };
+
+})(bingo);
+
+//end document.body controller ======================================================
+
 //定义 jQuery 扩展======================================================
 (function (bingo, $) {
     'use strict';
@@ -91,8 +113,7 @@
             node: null,
             _tmpl: null,
             _modalNode: null,
-            param: null,
-            returnValue:null
+            param: null
         });
 
         //定义属性
@@ -129,10 +150,11 @@
 
                         //将modal连接到node, 如果node删除了, modal会自动消毁, 调用dispose方法和发送onDispose事件
                         $this.linkToDom($node);
-
                         //modal已经连接到node, 所以可以放心循环引用
                         $this._modalNode = $node;
                         _dialogClass.setDialog($node, $this);
+
+
                         $this.__showLoading();
                         $view.on('ready', function () {
                             if ($view.isDisposed) return;
@@ -146,13 +168,13 @@
                                 setTimeout(function () {
                                     if ($view.isDisposed) return;
                                     //modal显示完成后, 发送show事件
-                                    $this.trigger('show');
+                                    $this.trigger('show').end('show');
                                     $view.$update();
                                 }, 100);
                             }).on('hidden.bs.modal', function () {
                                 try {
                                     //modal隐藏完成后, 发送close事件
-                                    $this.trigger('close', $this.returnValue() || []);
+                                    $this.trigger('close');
                                 } finally {
                                     //删除$node, 并modal自动消毁
                                     setTimeout(function () { $node.remove(); });
@@ -167,10 +189,12 @@
             //关闭modal, 并可以发送返回数据, 如: close(true)
             close: function () {
                 if (arguments.length > 0) {
-                    this.returnValue(bingo.sliceArray(arguments, 0));
-                    this.send.apply(this, arguments);
-                } else
-                    this.returnValue([]);
+                    var args = bingo.sliceArray(arguments, 0);
+                    this.on('close', function () {
+                        this.send.apply(this, args);
+                    });
+                }
+
                 this._modalNode.modal('hide');
                 return this;
             },

@@ -310,21 +310,26 @@
 
     bingo.Event = function (owner, eList) {
 
-        var eventList = eList || [];
-        var $this = owner;
-        var eventF = function (callback) {
-            $this || ($this = this);
-            callback && eventF.on(callback);
-            return arguments.length == 0 ? eventF : $this;
-        };
+        var eventList = eList || [],
+            $this = owner,
+            _end = false,
+            eventF = function (callback) {
+                $this || ($this = this);
+                callback && eventF.on(callback);
+                return arguments.length == 0 ? eventF : $this;
+            };
 
         bingo.extend(eventF, {
             on: function (callback) {
                 callback && eventList.push({ one: false, callback: callback });
+
+                _end && eventF.trigger().off();
                 return this;
             },
             one: function (callback) {
                 callback && eventList.push({ one: true, callback: callback });
+
+                _end && eventF.trigger().off();
                 return this;
             },
             off: function (callback) {
@@ -336,6 +341,13 @@
                     });
                     eventList = list;
                 } else { eventList = []; }
+                return this;
+            },
+            //结束事件, 先解除绑定事件, 以后绑定事件马上自动确发, 用于ready之类的场景
+            end: function (isEnd) {
+                _end = (isEnd !== false);//默认为true
+
+                _end && eventF.off();
                 return this;
             },
             trigger: function () {
@@ -562,8 +574,14 @@
             return this;
         };
         define.prototype.off = function (name, callback) {
-            if (name && callback) {
+            if (name) {
                 this.getEvent(name).off(callback);
+            }
+            return this;
+        };
+        define.prototype.end = function (name, isEnd) {
+            if (name) {
+                this.getEvent(name).end(isEnd);
             }
             return this;
         };
@@ -1073,7 +1091,7 @@
         if (bingo.isFunction(callback)) {
             var jTarget = $(jSelector);
             if (!bingo.isUnload && jTarget.length > 0) {
-                if (_autoId > Number.MAX_VALUE) _autoId = 0;
+                if (_autoId >= Number.MAX_VALUE) _autoId = 0;
                 _autoId++;
                 var link = { id: "linkToDom_130102_" + _autoId, target: jTarget, callback: callback, unlink: _unlink, disconnect: _disconnect };
                 jTarget.data(link.id, "T");
@@ -1586,7 +1604,13 @@
             appendTo: function (node) { this._parentNode = $(node)[0]; return this; },
             //是否缓存, 默认true
             cache: function (cache) { this._cache = cache; return this; },
+            stop: function (stop) { this._stop = (stop !== false); return this; },
             compile: function (callback) {
+                if (this._stop) {
+                    this._stop = false;
+                    this.clearProp();
+                    return this;
+                }
                 //初始parentNode, parentDomnode, view
                 var parentNode = this._parentNode;
                 var parentDomnode = parentNode ? _compiles.getDomnode(parentNode) : null;
@@ -1630,8 +1654,14 @@
                     callback && callback.call(this, jo[0]);
                 } else if (parentNode && this._url) {
                     //以url方式加载, 必须先指parentNode;
-                    var url = this._url;
+                    var url = this._url, $this = this;
                     var ajax = bingo.inject('$ajax', view)(url).success(function (rs) {
+                        if ($this._stop) {
+                            $this._stop = false;
+                            $this.clearProp();
+                            return;
+                        }
+
                         _templateClass.NewObject(view).fromHtml(rs).controller(controller)
                             .withData(withData).withDataList(withDataList)
                             .appendTo(parentNode).compile(function (jo) {
@@ -1770,16 +1800,16 @@
                     var $this = this;
                     bingo.inject('$ajax', this).syncAll(function () {
 
-                        $this.trigger('initdata').off('initdata');
+                        $this.trigger('initdata').end('initdata');
 
                     }).success(function () {
                         //所有$axaj加载成功
-                        $this.trigger('ready').off('ready');
+                        $this.trigger('ready').end('ready');
                         $this._isReady_ = true;
                         $this.$update();
                     });
                 } else {
-                    this.trigger('ready').off('ready');
+                    this.trigger('ready').end('ready');
                     this._isReady_ = true;
                     this.$update();
                 }
@@ -4281,7 +4311,12 @@ bingo.location = function (node) {
         },
         onChange: function (callback) {
             callback && this.frame().on(frameName + '-change', function (e, url) {
-                callback(url);
+                callback.call(this, url);
+            });
+        },
+        onLoaded: function (callback) {
+            callback && this.frame().on(frameName + '-loaded', function (e, url) {
+                callback.call(this, url);
             });
         },
         frame: function () { return $node.closest('[' + frameName + ']'); },
@@ -4554,12 +4589,14 @@ bingo.command('bg-frame', function () {
         view: true,
         compileChild: false,
         compile: ['$tmpl', '$node', '$attr', '$location', function ($tmpl, $node, $attr, $location) {
-            var _loading = false;
+            var _lastTmpl = null;
             $location.onChange(function (url) {
-                if (_loading) return;
-                _loading = true;
+                _lastTmpl && _lastTmpl.stop();
                 $node.html('');
-                $tmpl.fromUrl(url).appendTo($node).compile(function () { _loading = false; });
+                _lastTmpl = $tmpl.fromUrl(url).appendTo($node).compile(function () {
+                    _lastTmpl = null;
+                    $node.trigger('bg-frame-loaded', [url]);
+                });
             });
             var url = $attr.$prop();
             url && $location.href(url);
