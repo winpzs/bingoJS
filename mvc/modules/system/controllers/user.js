@@ -25,10 +25,10 @@
                 });
 
                 //ready事件, view准备好了.
-                $node.showLoading();
+                //$node.showLoading();
                 $view.on('ready', function () {
                     _user.loadData();
-                    $node.hideLoading();
+                    //$node.hideLoading();
                     $node.css('visibility', 'visible');
                 });
 
@@ -47,7 +47,7 @@
                         var user = userService.newModel();
                         $dialog(_user.formUrl)
                             .param({ user: user })
-                            .on('close', function (r) {
+                            .receive(function (r) {
                                 if (!r) return;
                                 //添加用户
                                 userService.add(user);
@@ -59,7 +59,7 @@
                     edit: function (user) {
                         $dialog(_user.formUrl)
                             .param({ user: user })
-                            .on('close', function (r) {
+                            .receive(function (r) {
                                 if (!r) return;
                                 //重新加载数据
                                 _user.loadData();
@@ -69,11 +69,7 @@
                     viewInfo: function (user) {
                         $dialog(_user.formUrl)
                             .param({ user: user, isView: true })
-                            .on('close', function (r) {
-                                if (!r) return;
-                                //重新加载数据
-                                _user.loadData();
-                            }).show();
+                            .show();
                     },
                     //删除用户
                     doDelete: function (user) {

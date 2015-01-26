@@ -10,11 +10,12 @@
     window.bodyController = function ($view) {
 
         var $location = bingo.location($(document.body).find('div[bg-frame-name="main"]'));
+        var pageContenT = $('#page-content');
         $location.onChange(function () {
-            $(this).showLoading();
+            pageContenT.showLoading();
         });
         $location.onLoaded(function () {
-            $(this).hideLoading();
+            pageContenT.hideLoading();
         });
 
     };

@@ -1605,6 +1605,7 @@
             //是否缓存, 默认true
             cache: function (cache) { this._cache = cache; return this; },
             stop: function (stop) { this._stop = (stop !== false); return this; },
+            compilePre: function (compilePre) { this._compilePre = compilePre; return this; },
             compile: function (callback) {
                 if (this._stop) {
                     this._stop = false;
@@ -1626,6 +1627,7 @@
                 var withData = this._withData;
                 var withDataList = this._withDataList;
                 var controller = this._controller;
+                var compilePre = this._compilePre;
 
                 //_compile
                 if (this._jo) {
@@ -1639,6 +1641,7 @@
                         } else
                             return this;
                     }
+                    compilePre && compilePre.call(this);
                     if (parentNode) {
                         jo.appendTo(parentNode);
                     }
@@ -1664,7 +1667,7 @@
 
                         _templateClass.NewObject(view).fromHtml(rs).controller(controller)
                             .withData(withData).withDataList(withDataList)
-                            .appendTo(parentNode).compile(function (jo) {
+                            .appendTo(parentNode).compilePre(compilePre).compile(function (jo) {
                                 callback && callback.call(this, jo);
                                 this.dispose();
                             });
@@ -1674,7 +1677,7 @@
                 return this;
             },
             clearProp: function () {
-                this._jo = this._url = this._controller = this._html = this._parentNode = this._view = this._withDataList = this._withData = null;
+                this._jo = this._url = this._compilePre = this._controller = this._html = this._parentNode = this._view = this._withDataList = this._withData = null;
                 this.cache(true);
                 return this;
             }
@@ -4592,8 +4595,9 @@ bingo.command('bg-frame', function () {
             var _lastTmpl = null;
             $location.onChange(function (url) {
                 _lastTmpl && _lastTmpl.stop();
-                $node.html('');
-                _lastTmpl = $tmpl.fromUrl(url).appendTo($node).compile(function () {
+                _lastTmpl = $tmpl.fromUrl(url).appendTo($node).compilePre(function () {
+                    $node.html('');
+                }).compile(function () {
                     _lastTmpl = null;
                     $node.trigger('bg-frame-loaded', [url]);
                 });

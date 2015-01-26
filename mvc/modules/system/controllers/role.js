@@ -18,10 +18,10 @@
                     roleService.initData();
                 });
 
-                $node.showLoading();
+                //$node.showLoading();
                 $view.on('ready', function () {
                     _role.loadData();
-                    $node.hideLoading();
+                    //$node.hideLoading();
                     $node.css('visibility', 'visible');
                 });
 
@@ -36,7 +36,7 @@
                         var role = roleService.newModel();
                         $dialog(_role.formUrl)
                             .param({ role: role })
-                            .on('close', function (r) {
+                            .receive(function (r) {
                                 if (!r) return;
                                 roleService.add(role);
                                 _role.loadData();
@@ -45,7 +45,7 @@
                     edit: function (role) {
                         $dialog(_role.formUrl)
                             .param({ role: role })
-                            .on('close', function (r) {
+                            .receive(function (r) {
                                 if (!r) return;
                                 _role.loadData();
                             }).show();
@@ -53,10 +53,7 @@
                     viewInfo: function (role) {
                         $dialog(_role.formUrl)
                             .param({ role: role, isView: true })
-                            .on('close', function (r) {
-                                if (!r) return;
-                                _role.loadData();
-                            }).show();
+                            .show();
                     },
                     doDelete: function (role) {
                         roleService.del(role);

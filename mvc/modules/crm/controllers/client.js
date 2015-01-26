@@ -22,10 +22,10 @@
                     userService.initData();
                 });
 
-                $node.showLoading();
+                //$node.showLoading();
                 $view.on('ready', function () {
                     _client.loadData();
-                    $node.hideLoading();
+                    //$node.hideLoading();
                     $node.css('visibility', 'visible');
                 });
 
@@ -40,7 +40,7 @@
                         var client = clientService.newModel();
                         $dialog(_client.formUrl)
                             .param({ client: client })
-                            .on('close', function (r) {
+                            .receive(function (r) {
                                 if (!r) return;
                                 clientService.add(client);
                                 _client.loadData();
@@ -49,7 +49,7 @@
                     edit: function (client) {
                         $dialog(_client.formUrl)
                             .param({ client: client })
-                            .on('close', function (r) {
+                            .receive(function (r) {
                                 if (!r) return;
                                 _client.loadData();
                             }).show();
@@ -57,10 +57,7 @@
                     viewInfo: function (client) {
                         $dialog(_client.formUrl)
                             .param({ client: client, isView: true })
-                            .on('close', function (r) {
-                                if (!r) return;
-                                _client.loadData();
-                            }).show();
+                            .show();
                     },
                     doDelete: function (client) {
                         clientService.del(client);
