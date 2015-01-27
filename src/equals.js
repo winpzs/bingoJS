@@ -4,8 +4,8 @@
     "use strict";
 
     var _equals = function (p1, p2) {
-        if ((bingo.isNull(p1) || bingo.isNull(p2)) && p1 !== p2)
-            return false;
+        if (bingo.isNull(p1) || bingo.isNull(p2))
+            return p1 === p2;
         if (bingo.isArray(p1)) {
             return _ArrayEquals(p1, p2);
         } else if (p1 instanceof RegExp) {

@@ -94,18 +94,20 @@
         var define = this._define.prototype;
         for (var n in o) {
             if (o.hasOwnProperty(n)) {
-                define[n] = _makeVarFn(o[n]);
+                define[n] = _makeVarFn(o[n], n);
             }
         }
         return this;
     };
 
-    var _makeVarFn = function (defaultValue) {
+    var _makeVarFn = function (defaultValue, n) {
         var fn = function (value) {
+            var _variable = this._variable;
+            if (!(n in _variable)) _variable[n] = defaultValue;
             if (arguments.length == 0)
-                return defaultValue;
+                return _variable[n];
             else {
-                defaultValue = arguments[0];
+                _variable[n] = arguments[0];
                 return this;
             }
         };
@@ -209,28 +211,36 @@
                 var propertys = bingo.clone(obj._property);
                 _extendObj(obj, propertys);
             }
+            obj._variable = {};
             obj._Initialization.apply(obj, arguments);
             obj._Initialization = bingo.noop;
             return obj;
         };
-        define.prototype.prop = function (props) {
-        	/// <summary>
-            /// 设置或获取Prototype属性
-        	/// </summary>
-        	/// <param name="props" type="Object">属性值, {name:'名称', id:'111'}</param>
-            if (arguments.length == 0) {
-                var props = this._property;
-                var obj = {};
-                for (var n in props) {
-                    if (props.hasOwnProperty(n)) {
-                        obj[n] = this[n];
-                    }
-                }
-                return obj;
-            } else {
-                _extendObj(this, propertys);
-                return this;
-            }
+        //define.prototype.prop = function (props) {
+        //	/// <summary>
+        //    /// 设置或获取Prototype属性
+        //	/// </summary>
+        //	/// <param name="props" type="Object">属性值, {name:'名称', id:'111'}</param>
+        //    if (arguments.length == 0) {
+        //        var props = this._property;
+        //        var obj = {};
+        //        for (var n in props) {
+        //            if (props.hasOwnProperty(n)) {
+        //                obj[n] = this[n];
+        //            }
+        //        }
+        //        return obj;
+        //    } else {
+        //        _extendObj(this, propertys);
+        //        return this;
+        //    }
+        //};
+        define.prototype.getEvent = function (name) {
+            /// <summary>
+            /// 取得事件
+            /// </summary>
+            /// <param name="name">事件名称</param>
+            return bingo.Event(this);
         };
         define.prototype.on = function (name, callback) {
         	/// <summary>
@@ -241,24 +251,66 @@
             callback && intellisenseSetCallContext(callback, this);
             return this;
         };
-        define.prototype.trigger = function (name, params) {
-        	/// <summary>
-            /// 触发事件, trigger('click', a, b, c);
-        	/// </summary>
-        	/// <param name="name"></param>
-            /// <param name="params">多个参数,....</param>
+        define.prototype.one = function (name, callback) {
+            /// <summary>
+            /// 绑定事件
+            /// </summary>
+            /// <param name="name">事件名称</param>
+            /// <param name="callback"></param>
+            callback && intellisenseSetCallContext(callback, this);
             return this;
         };
-
-        define.prototype.clone = function () {
-        	/// <summary>
-        	/// 复制对象, this.clone(url, count), 传入类构造参数
-        	/// </summary>
-            var obj = define.NewObject.apply(window, arguments);
-            var prop = this.prop();
-            obj.prop(prop);
-            return obj;
+        define.prototype.off = function (name, callback) {
+            /// <summary>
+            /// 解除事件
+            /// </summary>
+            /// <param name="name">事件名称</param>
+            /// <param name="callback">可选</param>
+            callback && intellisenseSetCallContext(callback, this);
+            return this;
         };
+        define.prototype.end = function (name, isEnd) {
+            /// <summary>
+            /// 结束事件, 先解除绑定事件, 以后绑定事件马上自动确发, 用于ready之类的场景
+            /// </summary>
+            /// <param name="name">事件名称</param>
+            /// <param name="isEnd">可选, 默认为true</param>
+            return this;
+        };
+        define.prototype.trigger = function (name, params) {
+            /// <summary>
+            /// 触发事件, trigger('click', [a, b, c]);
+            /// </summary>
+            /// <param name="name"></param>
+            /// <param name="params">多个参数,[a, b, ....]</param>
+            return this;
+        };
+        define.prototype.triggerHandler = function (name, params) {
+            /// <summary>
+            /// 触发第一事件, 并返回值, triggerHandler('click', [a, b, c]);
+            /// </summary>
+            /// <param name="name"></param>
+            /// <param name="params">多个参数,[a, b, ....]</param>
+            return {};
+        };
+        define.prototype.hasEvent = function (name) {
+            /// <summary>
+            /// 是否有事件
+            /// </summary>
+            /// <param name="name"></param>
+            /// <returns value='Boolean'></returns>
+            return true;
+        };
+
+        //define.prototype.clone = function () {
+        //	/// <summary>
+        //	/// 复制对象, this.clone(url, count), 传入类构造参数
+        //	/// </summary>
+        //    var obj = define.NewObject.apply(window, arguments);
+        //    var prop = this.prop();
+        //    obj.prop(prop);
+        //    return obj;
+        //};
 
         //是否释放
         define.prototype.isDisposed = false;

@@ -15,8 +15,10 @@
             linkToDom: function (jqSelector) {
                 this.unlinkToDom();
                 var $this = this;
-                this._linkToDomObject = bingo.linkToDom(jqSelector, function () {
-                    try{
+                this._linkToDomObject = bingo.linkToDom(jqSelector, function (isRemoveDom) {
+                    try {
+                        //console.log('isRemoveDom', isRemoveDom);
+                        isRemoveDom && $this.trigger && $this.trigger('domRemoved');
                         $this.dispose && $this.dispose();
                     } finally {
                         jqSelector = $this._linkToDomObject = null;
@@ -28,6 +30,7 @@
             unlinkToDom: function () {
                 this._linkToDomObject && this._linkToDomObject.unlink();
                 this._linkToDomObject = null;
+                
                 return this;
             }
         });
@@ -56,11 +59,11 @@
         _disconnectByLink(this);
     };
 
-    var _disconnectByLink = function (link) {
+    var _disconnectByLink = function (link, isRemoveDom) {
         if (link && link.target) {
             var callback = link.callback;
             _unlink.call(link);
-            callback();
+            callback(isRemoveDom);
         }
     };
 
@@ -77,13 +80,16 @@
     };
     
 
+    var _autoId = 0;
     var _addLink = function (jSelector, callback) {
         if (bingo.isFunction(callback)) {
             var jTarget = $(jSelector);
             if (!bingo.isUnload && jTarget.length > 0) {
-                var link = { id: "linkToDom_130102_" + bingo.makeAutoId(), target: jTarget, callback: callback, unlink: _unlink, disconnect: _disconnect };
+                if (_autoId >= Number.MAX_VALUE) _autoId = 0;
+                _autoId++;
+                var link = { id: "linkToDom_130102_" + _autoId, target: jTarget, callback: callback, unlink: _unlink, disconnect: _disconnect };
                 jTarget.data(link.id, "T");
-                jTarget.one("linkRemove.linkdom", function (e) { _disconnectByLink(link); });
+                jTarget.one("linkRemove.linkdom", function (e) { _disconnectByLink(link, true); });
                 return link;
             } else {
                 callback();

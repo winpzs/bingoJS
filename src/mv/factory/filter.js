@@ -26,12 +26,12 @@
             return filterList;
         },
         //取得filter参数, 'date:"yyyyMMdd"' 或 filter:{p1:1, p2:'aaa'}
-        getContextObjectFun: function (attrValue, withData) {
+        getContextObjectFun: function (attrValue) {
 
             var fn = null;
             var attT = ['{', attrValue, '}'].join('');
-            var retScript = !withData ? ['return ', attT, ';'].join('') : ['with($withData){ return ', attT, '; }'].join('');
-            fn = new Function('$view', '$val', '$withData', ' return (function(){ try{ with($view){' + retScript + ' }}catch(e){if (bingo.isDebug) console.error(e.message);return window.undefined;}}).call($val)');
+            var retScript = ['return ', attT, ';'].join('');
+            fn = new Function('$view', '$data', '$withData', ' return (function(){ try{ with($view){ if (!$withData){ ' + retScript + '} else { with($withData){' + retScript + ' }} }}catch(e){if (bingo.isDebug) console.error(e.message);}}).call($data)');
 
             return fn;
         },
@@ -48,7 +48,7 @@
             return filter || bingo.filter(name);
         },
         //生成filter对象
-        getFilterObjList: function ($view, $domnode, withData, s) {
+        getFilterObjList: function ($view, $domnode, s) {
             var sList = this.getFilterStringList(s);
             if (sList.length == 0) return [];
             var list = [];
@@ -64,7 +64,7 @@
                     ftO = _filter.getFilterByView($view, obj.name);
                     if (!ftO) return;
                     ftO = bingo.inject(ftO, $view, $domnode);
-                    obj.paramFn = _filter.getContextObjectFun(item, withData);
+                    obj.paramFn = _filter.getContextObjectFun(item);
                 } else {
                     obj.name = item;
                     ftO = _filter.getFilterByView($view, obj.name);
@@ -76,7 +76,7 @@
                     if (!this.fitlerFn) return val;
                     var para = null;
                     if (this.paramFn) {
-                        para = this.paramFn($view, bingo.isUndefined(val) ? null : val, withData);
+                        para = this.paramFn($view, val, withData);
                         para && (para = para[this.name]);
                     }
                     return this.fitlerFn(val, para);
@@ -85,14 +85,14 @@
             });
             return list;
         },
-        createFilterObject: function ($view, $domnode, withData, s) {
+        createFilterObject: function ($view, $domnode, s) {
             var filter = {};
             var hasFilter = _filter.hasFilter(s);
-            filter._filters = hasFilter ? _filter.getFilterObjList($view, $domnode, withData, s) : [];
+            filter._filters = hasFilter ? _filter.getFilterObjList($view, $domnode, s) : [];
             if (filter._filters.length > 0) {
                 filter.filter = function (val, withData) {
                     //过滤
-                    var res = val;
+                    var res = bingo.variableOf(val);
                     bingo.each(this._filters, function () {
                         res = this.fitler(res, $view, withData);
                     });
@@ -105,16 +105,16 @@
         }
     };
 
-    bingo.factory('$filter', ['$view', '$domnode', function ($view, $domnode) {
-        var _widthData = $domnode && $domnode.getWithData();
+    bingo.factory('$filter', ['$view', '$domnode', '$withData', function ($view, $domnode, $withData) {
+        //$domnode可选
         var _filterObj = null;
         var flt = function (context, withData) {
-            withData && (_widthData = withData);
-            _filterObj = _filter.createFilterObject($view, $domnode, _widthData, context);
+            withData && ($withData = withData);
+            _filterObj = _filter.createFilterObject($view, $domnode, context);
             return {
                 context:_filter.removerFilterString(context),
                 filter: function (value, withData) {
-                    return _filterObj.filter(value, withData || _widthData);
+                    return _filterObj.filter(value, withData || $withData);
                 }
             };
         };
@@ -145,22 +145,49 @@
         };
     });
 
+    bingo.filter('gte', function () {
+        return function (value, para) {
+            return value >= para;
+        };
+    });
+
     bingo.filter('lt', function () {
         return function (value, para) {
             return value < para;
         };
     });
 
+    bingo.filter('lte', function () {
+        return function (value, para) {
+            return value <= para;
+        };
+    });
+
     bingo.filter('text', function () {
         return function (value, para) {
-            return bingo.html();
+            return bingo.htmlEncode(value);
         };
     });
 
     //sw:[0, 'active', ''] //true?'active':''
     bingo.filter('sw', function () {
         return function (value, para) {
-            return value == para[0] ? para[1] : para[2];
+
+            var len = para.length;
+            var hasElse = (len % 2) == 1; //如果单数, 有else值
+            var elseVal = hasElse ? para[len - 1] : '';
+            hasElse && (len--);
+
+            //sw:[1, '男', 2, '女', '保密'], '保密'为else值
+            var r = null, ok = false, item;
+            for (var i = 0; i < len; i += 2) {
+                item = para[i];
+                if (value == item) {
+                    r = para[i + 1], ok = true;
+                    break;
+                }
+            }
+            return ok ? r : elseVal;
         };
     });
 

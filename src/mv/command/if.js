@@ -1,19 +1,20 @@
 ﻿
 bingo.command('bg-if', function () {
     return {
-        view: false,
         compileChild: false,
-        compilePre: ['$attr', '$node', '$subscribe', '$tmpl', function compile($attr, $node, $subscribe, $tmpl) {
+        compile: ['$attr', '$node', '$tmpl', function compile($attr, $node, $tmpl) {
             var jo = $($node);
             var html = jo.html();
             jo.html(''); jo = null;
-            $subscribe(function () { return $attr.$getContext(); }, function (newValue) {
-                if ($attr.$filter(newValue)) {
-                    $tmpl.formHtml(html).appendTo($node).compile();
+            $attr.$subs(function () { return $attr.$context(); }, function (newValue) {
+                if (newValue) {
+                    $node.show();
+                    $tmpl.fromHtml(html).appendTo($node).compile();
                 } else
-                    $($node).html('');
+                    $node.html('').hide();
                 //console.log('if ', newValue, html);
             });
+
         }]
     };
 });

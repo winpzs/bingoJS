@@ -1,8 +1,23 @@
 ﻿
+/*
+    与bg-frame同用, 取bg-frame的url等相关
+    $location.href('view/system/user/list');
+    var href = $location.href();
+    var params = $location.params();
+
+
+    $location.onChange请参考bg-frame定义
+*/
+
 bingo.location = function (node) {
-    var $node = $(node);
+    var $node = $(node || document.documentElement);
     var frameName = 'bg-frame';
     return {
+        params: function () {
+            var url = this.href();
+            var routeContext = bingo.routeContext(url);
+            return routeContext.params;
+        },
         href: function (url, target) {
             if (arguments.length == 0)
                 return this.toString();
@@ -13,9 +28,14 @@ bingo.location = function (node) {
                 }
             }
         },
-        change: function (callback) {
-            callback && $node.on(frameName + '-change', function (e, url) {
-                callback(url);
+        onChange: function (callback) {
+            callback && this.frame().on(frameName + '-change', function (e, url) {
+                callback.call(this, url);
+            });
+        },
+        onLoaded: function (callback) {
+            callback && this.frame().on(frameName + '-loaded', function (e, url) {
+                callback.call(this, url);
             });
         },
         frame: function () { return $node.closest('[' + frameName + ']'); },

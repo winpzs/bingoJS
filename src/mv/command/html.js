@@ -1,8 +1,14 @@
 ﻿bingo.command('bg-html', function () {
-    return ['$attr', '$node', '$subscribe', function ($attr, $node, $subscribe) {
-        $subscribe(function () { return $attr.$getContext(); }, function (newValue) {
-            $node.html($attr.$filter(newValue));
+    return ['$attr', '$node', function ($attr, $node) {
+        var _set = function (val) {
+            $node.html(bingo.toStr(val));
+        };
+        $attr.$subs(function () { return $attr.$context(); }, function (newValue) {
+            _set(newValue);
         });
-        $node.html($attr.$filter($attr.$getContext()));
+        $attr.$init(function () { return $attr.$context() }, function (value) {
+            _set(value);
+        });
+
     }];
 });

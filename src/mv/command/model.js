@@ -1,6 +1,6 @@
 ﻿bingo.command('bg-model', function () {
 
-    return ['$view', '$node', '$attr', '$subscribe', function ($view, $node, $attr, $subscribe) {
+    return ['$view', '$node', '$attr', function ($view, $node, $attr) {
 
         var _isRadio = $node.is(":radio");
         var _isCheckbox = $node.is(":checkbox");
@@ -10,12 +10,10 @@
             return bingo.isNullEmpty(val) ? '' : val;
         }, _getElementValue = function () {
             var jT = $node;
-            return _isCheckbox ? (jT.prop("checked") ? jT.data("checkbox_value_02") : pxj.stringEmpty) : jT.val();
+            return _isCheckbox ? (jT.prop("checked") ? jT.data("checkbox_value_02") : '') : jT.val();
         }, _setElementValue = function (value) {
             var jo = $node;
             value = _emptyString(value);
-            if (_oldValue == value) return;
-            _oldValue = value;
             if (_isCheckbox) {
                 jo.data("checkbox_value_02", value);
                 jo.prop("checked", (jo.val() == value));
@@ -25,27 +23,28 @@
                 jo.val(value);
 
         };
-        var _oldValue = null;
-        _setElementValue($attr.$datavalue());
-        //console.log($attr.$datavalue());
 
         if (_isRadio) {
             $node.click(function () {
                 var value = _getElementValue();
-                $attr.$datavalue(value);
+                $attr.$value(value);
                 $view.$update();
             });
         } else {
             $node.on('change', function () {
                 var value = _getElementValue();
-                $attr.$datavalue(value);
+                $attr.$value(value);
                 $view.$update();
             });
         }
 
 
-        $subscribe(function () { return $attr.$datavalue(); }, function (newValue) {
+        $attr.$subs(function () { return $attr.$value(); }, function (newValue) {
             _setElementValue(newValue);
+        });
+
+        $attr.$init(function () { return $attr.$value() }, function (value) {
+            _setElementValue(value);
         });
 
     }];

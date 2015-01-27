@@ -1,17 +1,26 @@
-﻿
-bingo.each('attr,src,checked,disabled,class'.split(','), function (attrName) {
+﻿/*
+    使用方法:
+    bg-attr="{src:'text.html', value:'ddd'}"
+    bg-prop="{disabled:false, checked:true}"
+    bg-checked="true" //直接表达式
+    bg-checked="helper.checked" //绑定到变量, 双向绑定
+*/
+bingo.each('attr,prop,src,checked,disabled,readonly,class'.split(','), function (attrName) {
     bingo.command('bg-' + attrName, function () {
 
-        return ['$attr', '$node', '$subscribe', function ($attr, $node, $subscribe) {
+        return ['$view', '$attr', '$node', function ($view, $attr, $node) {
 
             var _set = function (val) {
-                val = $attr.$filter(val);
                 switch (attrName) {
-                    case 'style':
+                    case 'attr':
                         //bg-attr="{src:'text.html', value:'ddd'}"
                         $node.attr(val);
                         break;
+                    case 'prop':
+                        $node.prop(val);
+                        break;
                     case 'disabled':
+                    case 'readonly':
                     case 'checked':
                         $node.prop(attrName, val);
                         break;
@@ -22,11 +31,22 @@ bingo.each('attr,src,checked,disabled,class'.split(','), function (attrName) {
 
             };
 
-            $subscribe(function () { return $attr.$getContext(); }, function (newValue) {
+            $attr.$subs(function () { return $attr.$context(); }, function (newValue) {
                 _set(newValue);
-            }, (attrName == 'attr'));
+            }, (attrName == 'attr' || attrName == 'prop'));
 
-            _set($attr.$getContext());
+            $attr.$init(function () { return $attr.$context() }, function (value) {
+                _set(value);
+            });
+
+            if (attrName == 'checked') {
+                //如果是checked, 双向绑定
+                $node.click(function () {
+                    var value = $node.prop('checked');
+                    $attr.$value(value);
+                    $view.$update();
+                });
+            }
 
         }];
 

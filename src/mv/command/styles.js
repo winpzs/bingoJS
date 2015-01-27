@@ -1,11 +1,16 @@
 ﻿
-bingo.each('style,display,hide,visibility'.split(','), function (attrName) {
+/*
+    使用方法:
+    bg-style="{display:'none', width:'100px'}"
+    bg-show="true"
+    bg-show="res.show"
+*/
+bingo.each('style,show,hide,visibility'.split(','), function (attrName) {
     bingo.command('bg-' + attrName, function () {
 
-        return ['$attr', '$node', '$subscribe', function ($attr, $node, $subscribe) {
+        return ['$attr', '$node', function ($attr, $node) {
 
             var _set = function (val) {
-                val = $attr.$filter(val);
 
                 switch (attrName) {
                     case 'style':
@@ -14,7 +19,7 @@ bingo.each('style,display,hide,visibility'.split(','), function (attrName) {
                         break;
                     case 'hide':
                         val = !val;
-                    case 'display':
+                    case 'show':
                         if (val) $node.show(); else $node.hide();
                         break;
                     case 'visibility':
@@ -27,11 +32,13 @@ bingo.each('style,display,hide,visibility'.split(','), function (attrName) {
                 }
             };
 
-            $subscribe(function () { return $attr.$getContext(); }, function (newValue) {
+            $attr.$subs(function () { return $attr.$context(); }, function (newValue) {
                 _set(newValue);
             }, (attrName == 'style'));
 
-            _set($attr.$getContext());
+            $attr.$init(function () { return $attr.$context() }, function (value) {
+                _set(value);
+            });
 
         }];
 

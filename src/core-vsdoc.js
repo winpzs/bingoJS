@@ -118,13 +118,25 @@
 
             return true;
         },
-        inArray: function (element, list) {
+        replaceAll: function (s, str, repl, flags) {
+            /// <summary>
+            /// 字串替换, 替换所有匹配内容
+            /// </summary>
+            /// <param name="s"></param>
+            /// <param name="str"></param>
+            /// <param name="repl"></param>
+            /// <param name="flags">默认g, (gmi)</param>
+            return '1';
+        },
+        inArray: function (element, list, index, rever) {
             /// <signature>
             /// <summary>
             /// 返回在数组里的索引
             /// </summary>
             /// <param name="element"></param>
             /// <param name="list"></param>
+            /// <param name="index">开始位置</param>
+            /// <param name="rever">反向</param>
             /// </signature>
             /// <signature>
             /// <summary>
@@ -132,10 +144,13 @@
             /// </summary>
             /// <param name="callback" type="function(item, index)"></param>
             /// <param name="list"></param>
+            /// <param name="index">开始位置</param>
+            /// <param name="rever">反向</param>
             /// </signature>
             if (this.isFunction(element)) intellisenseSetCallContext(element, list[0], [list[0], 0]);
             return 0;
         },
+        toStr: function (p) { return this.isUndefined(p) ? '' : p.toString(); },
         removeArrayItem: function (element, list) {
         	/// <summary>
         	/// 删除数组元素
@@ -159,12 +174,14 @@
         	/// </summary>
         	/// <returns value='"0"'></returns>
         },
-        each: function (list, callback) {
+        each: function (list, callback, index, rever) {
         	/// <summary>
         	/// 
         	/// </summary>
         	/// <param name="list"></param>
-        	/// <param name="callback" type="function(data, index)"></param>
+        	/// <param name="callback" type="function(item, index)"></param>
+            /// <param name="index">开始位置, 如果负数从后面算起</param>
+            /// <param name="rever">反向</param>
 
             //callback(data, index){this === data;}
             if (this.isNull(list)) return;

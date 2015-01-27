@@ -20,7 +20,7 @@
     };
 
     var _loadFun = function (jsList, callback, pos) {
-        !bingo.isNumeric(pos) && (pos = bingo.env.Normal);
+        !bingo.isNumeric(pos) && (pos = bingo.usingPriority.Normal);
 
         _makeNeedList(jsList);
 
@@ -38,20 +38,11 @@
         }
         //callback = jsList = null;
     },
-    _pathAbs = bingo.getRelativePath(window.location + bingo.stringEmpty),
     _makeNeedList = function (jsList) {
-        var pathAbs = _pathAbs;
         var pathTemp = bingo.stringEmpty;
         bingo.each(jsList, function (pathItem) {
             if (bingo.isNull(pathItem)) return;
-            pathTemp = bingo.path(pathItem);
-            if (bingo.isRootPath(pathTemp)) {
-                //如果是相对根目录, 保存
-                pathAbs = pathTemp;
-            } else {
-                //如果不是相对根目录, 相对于上一个目录
-                pathTemp = bingo.getRelativePath(pathAbs, pathTemp);
-            }
+            pathTemp = bingo.route(pathItem);
 
             //路由
             pathTemp = _getMapPath(pathTemp);
@@ -127,8 +118,8 @@
         },
         _addMap = function (path, mapPath) {
             if (bingo.isNullEmpty(path) || bingo.isNullEmpty(mapPath)) return;
-            path = bingo.path(path);
-            mapPath = bingo.path(mapPath);
+            path = bingo.route(path);
+            mapPath = bingo.route(mapPath);
             var oldmap = _getMap(path);
             if (bingo.isNull(oldmap)) {
                 _mapList.push(_createMapItem(path, mapPath));
@@ -169,7 +160,7 @@
                 callback && callback();
             }, pos);
         },
-        map: function (path, mapPath) {
+        usingMap: function (path, mapPath) {
             var len = arguments.length;
             if (len < 2) return;
             mapPath = arguments[0];
@@ -179,93 +170,15 @@
                 if (bingo.isNullEmpty(item)) return;
                 _addMap(item, mapPath);
             });
-        }
-    });
-
-
-    //define========================================================
-
-    var _extendObj = function (obj, extObj) {
-        for (var n in extObj) {
-            if (extObj.hasOwnProperty(n)) {
-                obj[n] = extObj[n];
-            }
-        }
-    };
-
-    var _DEFINE = "bingo_define_91";
-    bingo.extend({
-        isDefine: function (define) { return define._DEFINE === _DEFINE; },
-        define: function () {
-            var baseDefineFn = null;
-            var defineFn = null;
-            var defineName = null;
-
-            var item = null;
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                item = arguments[i];
-                if (item) {
-                    if (this.isDefine(item))
-                        baseDefineFn = item;
-                    else if (this.isFunction(item))
-                        defineFn = item;
-                    else if (this.isString(item))
-                        defineName = item;
-                }
-            }
-
-            var define = function () {
-
-                var envObj = _defineClass.NewObject(defineName);
-                envObj.base = function () {
-                    if (baseDefineFn && baseDefineFn._DEFINE_FN) {
-                        baseDefineFn._DEFINE_FN.apply(envObj, arguments);
-                    }
-                };
-
-                defineFn && defineFn.apply(envObj, arguments);
-                if (define._EXTEND)
-                    _extendObj(envObj, define._EXTEND);
-
-
-                return envObj;
-            };
-            define._DEFINE = _DEFINE;
-            define._DEFINE_FN = defineFn;
-
-            define.extend = function (obj) {
-                define._EXTEND || (define._EXTEND = {});
-                _extendObj(define._EXTEND, obj || {});
-            }
-
-            defineName && this.Class.makeDefine(defineName, define);
-            return define;
         },
-        env: function (callback, priority) {
-            if (!this.isFunction(callback)) return;
-
-            bingo.using(function () {
-                var envObj = _defineClass.NewObject('_env_');
-                callback && callback.call(envObj);
-            },  this.isNumeric(priority) ? priority : this.envPriority.Normal);
-
+        usingPriority: {
+            First: 0,
+            NormalBefore: 45,
+            Normal: 50,
+            NormalAfter: 55,
+            Last: 100
         }
     });
 
-    var _defineClass = bingo.Class(function () {
-
-        this.Initialization(function (defineName) {
-            this.$defineName = defineName;
-        });
-    });
-
-
-    bingo.envPriority = {
-        First: 0,
-        NormalBefore: 45,
-        Normal: 50,
-        NormalAfter: 55,
-        Last: 100
-    };
 
 })(bingo);

@@ -1,4 +1,13 @@
 ﻿
+/*
+    使用方法:
+    bg-frame="view/system/user/list"
+
+    连接到view/system/user/list, 目标:main
+    <a href="#view/system/user/list" bg-target="main">在main加载连接</a>
+    设置frame:'main'
+    <div bg-frame="" bg-frame-name="main"></div>
+*/
 bingo.command('bg-frame', function () {
     return {
         priority: 1000,
@@ -6,20 +15,18 @@ bingo.command('bg-frame', function () {
         view: true,
         compileChild: false,
         compile: ['$tmpl', '$node', '$attr', '$location', function ($tmpl, $node, $attr, $location) {
-            var url = $attr.$getValue();
-            var _href = function (url) {
-                $node.html('');
-                var router = bingo.route(url);
-                if (router) {
-                    var tmplUrl = router.tmplUrl;
-                    if (!bingo.isNullEmpty(tmplUrl))
-                        $tmpl.formUrl(tmplUrl).appendTo($node).compile();
-                }
-            };
-            _href(url);
-            $location.change(function (url) {
-                _href(url);
+            var _lastTmpl = null;
+            $location.onChange(function (url) {
+                _lastTmpl && _lastTmpl.stop();
+                _lastTmpl = $tmpl.fromUrl(url).appendTo($node).compilePre(function () {
+                    $node.html('');
+                }).compile(function () {
+                    _lastTmpl = null;
+                    $node.trigger('bg-frame-loaded', [url]);
+                });
             });
+            var url = $attr.$prop();
+            url && $location.href(url);
         }]
     };
 });

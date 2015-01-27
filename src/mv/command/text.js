@@ -1,11 +1,17 @@
 ﻿
 bingo.command('bg-text', function () {
 
-    return ['$attr', '$node', '$subscribe', function ($attr, $node, $subscribe) {
-        $subscribe(function () { return $attr.$getContext(); }, function (newValue) {
-            $node.text($attr.$filter(newValue));
+    return ['$attr', '$node', function ($attr, $node) {
+        var _set = function (val) {
+            $node.text(bingo.toStr(val));
+        };
+        $attr.$subs(function () { return $attr.$context(); }, function (newValue) {
+            _set(newValue);
         });
-        $node.text($attr.$filter($attr.$getContext()));
+
+        $attr.$init(function () { return $attr.$context() }, function (value) {
+            _set(value);
+        });
 
     }];
 });

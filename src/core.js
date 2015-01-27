@@ -1,5 +1,4 @@
 ﻿(function () {
-    //version 1.0.1
     "use strict";
 
     var stringEmpty = "",
@@ -17,6 +16,8 @@
     var _makeAutoIdTemp = 0, _makeAutoIdTempPointer = 0;
 
     var bingo = window.bingo = window.bingo = {
+        //主版本号.子版本号.修正版本号
+        version: { major: 1, minor: 0, rev: 0, toString: function () { return [this.major,this.minor,this.rev ].join('.') } },
         isDebug: false,
         prdtVersion: '',
         stringEmpty: stringEmpty,
@@ -71,20 +72,28 @@
             if (!this.isString(str1) || !this.isString(str2)) return false;
             return (str1.toUpperCase() == str2.toUpperCase());
         },
-        inArray: function (element, list) {
-            if (list) {
-                //if (list.indexOf) return list.indexOf(element);
-                var callback = this.isFunction(element) ? element : null;
-                for (var i = 0, len = list.length; i < len; i++) {
-                    if (callback) {
-                        element = list[i];
-                        if (callback.call(element, element, i)) return i;
-                    } else if (list[i] === element)
-                        return i;
-                }
-            }
-            return -1;
+        replaceAll: function (s, str, repl, flags) {
+            if (this.isNullEmpty(s) || this.isNullEmpty(str)) return s;
+            str = str.replace(/([^A-Za-z0-9])/g, "\\$1");
+            s = s.replace(new RegExp(str, flags || "g"), repl);
+            return s;
         },
+        inArray: function (element, list, index, rever) {
+            var callback = this.isFunction(element) ? element : null;
+            var indexRef = -1;
+            //debugger;
+            this.each(list, function (item, i) {
+                if (callback) {
+                    if (callback.call(item, item, i)) {
+                        indexRef = i; return false;
+                    }
+                } else if (item === element) {
+                    indexRef = i; return false;
+                }
+            }, index, rever);
+            return indexRef;
+        },
+        toStr: function (p) { return this.isUndefined(p) ? '' : p.toString(); },
         removeArrayItem: function (element, list) {
             var list1 = [];
             for (var i = 0, len = list.length; i < len; i++) {
@@ -104,11 +113,20 @@
             _makeAutoIdTemp = time;
             return [time, _makeAutoIdTempPointer].join('_');
         },
-        each: function (list, callback) {
+        each: function (list, callback, index, rever) {
             //callback(data, index){this === data;}
-            if (this.isNull(list)) return;
+            if (this.isNull(list) || !bingo.isNumeric(list.length)) return;
             var temp = null;
-            for (var i = 0, len = list.length; i < len; i++) {
+            var sT = bingo.isNumeric(index) ? index : 0;
+            if (sT < 0) sT = list.length + sT;
+            if (sT < 0) sT = 0;
+
+            var end = rever ? (sT - 1) : list.length;
+            var start = rever ? list.length - 1 : sT;
+            if ((rever && start <= end) || (!rever && start >= end)) return;
+
+            var step = rever ? -1 : 1;
+            for (var i = start; i != end; i += step) {
                 temp = list[i];
                 if (callback.call(temp, temp, i) === false) break;
             }

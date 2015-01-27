@@ -16,7 +16,8 @@
         var _property = define.prototype._property;
         if (_property) {
             define.prototype._property = {};
-            _extendObj(define.prototype._property, _property);
+            //_extendObj(define.prototype._property, _property);
+            _extendObj2(define.prototype._property, _property, define.prototype);
         }
         define.prototype.base = function () {
             this.base = bingo.noop;
@@ -27,7 +28,8 @@
     _defineClass.prototype.Property = function (o) {
         var define = this._define;
         if (!define.prototype._property) define.prototype._property = {};
-        _extendObj(define.prototype._property, o);
+        //_extendObj(define.prototype._property, o);
+        _extendObj2(define.prototype._property, o, define.prototype);
         return this;
     };
     _defineClass.prototype.Define = function (o) {
@@ -54,18 +56,20 @@
         var define = this._define.prototype;
         for (var n in o) {
             if (o.hasOwnProperty(n)) {
-                define[n] = _makeVarFn(o[n]);
+                define[n] = _makeVarFn(o[n], n);
             }
         }
         return this;
     };
 
-    var _makeVarFn = function (defaultValue) {
+    var _makeVarFn = function (defaultValue, n) {
         var fn = function (value) {
+            var _variable = this._variable;
+            if (!(n in _variable)) _variable[n] = defaultValue;
             if (arguments.length == 0)
-                return defaultValue;
+                return _variable[n];
             else {
-                defaultValue = arguments[0];
+                _variable[n] = arguments[0];
                 return this;
             }
         };
@@ -76,6 +80,15 @@
         for (var n in dest) {
             if (dest.hasOwnProperty(n)) {
                 src[n] = dest[n];
+            }
+        }
+    }, _extendObj2 = function (src, dest, srcDefine) {
+        for (var n in dest) {
+            if (dest.hasOwnProperty(n)) {
+                if (bingo.isObject(dest[n]) || bingo.isArray(dest[n]))
+                    src[n] = dest[n];
+                else
+                    srcDefine[n] = dest[n];
             }
         }
     };
@@ -133,50 +146,84 @@
                 var propertys = bingo.clone(obj._property);
                 _extendObj(obj, propertys);
             }
+            obj._variable = {};
             obj._Initialization.apply(obj, arguments);
             obj._Initialization = bingo.noop;
             return obj;
         };
-        define.prototype.prop = function (props) {
-            if (arguments.length == 0) {
-                var props = this._property;
-                var obj = {};
-                for (var n in props) {
-                    if (props.hasOwnProperty(n)) {
-                        obj[n] = this[n];
-                    }
-                }
-                return obj;
-            } else {
-                _extendObj(this, propertys);
-                return this;
-            }
-        };
+        //define.prototype.prop = function (props) {
+        //    if (arguments.length == 0) {
+        //        var props = this._property;
+        //        var obj = {};
+        //        for (var n in props) {
+        //            if (props.hasOwnProperty(n)) {
+        //                obj[n] = this[n];
+        //            }
+        //        }
+        //        return obj;
+        //    } else {
+        //        _extendObj(this, propertys);
+        //        return this;
+        //    }
+        //};
 
-        define.prototype.on = function (name, callback) {
-            if (name && callback) {
+        define.prototype.getEvent = function (name) {
+            if (name) {
                 this.__events__ || (this.__events__ = {});
                 var events = this.__events__;
-                events[name] || (events[name] = bingo.Event(this));
-                events[name].on(callback);
+                return events[name] || (events[name] = bingo.Event(this));
+            }
+            return null;
+        };
+        define.prototype.on = function (name, callback) {
+            if (name && callback) {
+                this.getEvent(name).on(callback);
+            }
+            return this;
+        };
+        define.prototype.one = function (name, callback) {
+            if (name && callback) {
+                this.getEvent(name).one(callback);
+            }
+            return this;
+        };
+        define.prototype.off = function (name, callback) {
+            if (name) {
+                this.getEvent(name).off(callback);
+            }
+            return this;
+        };
+        define.prototype.end = function (name, isEnd) {
+            if (name) {
+                this.getEvent(name).end(isEnd);
             }
             return this;
         };
         define.prototype.trigger = function (name) {
             if (this.__events__) {
                 var events = this.__events__;
-                var argLists = arguments.length > 1 ? bingo.sliceArray(arguments, 1) : [];
-                events[name] && events[name]().trigger.apply(this, argLists);
+                var argLists = arguments.length > 1 ? arguments[1] : [];
+                events[name] && events[name]().trigger(argLists);
             }
             return this;
         };
-
-        define.prototype.clone = function () {
-            var obj = define.NewObject.apply(window, arguments);
-            var prop = this.prop();
-            obj.prop(prop);
-            return obj;
+        define.prototype.triggerHandler = function (name) {
+            if (this.__events__) {
+                var events = this.__events__;
+                var argLists = arguments.length > 1 ? arguments[1] : [];
+                return events[name] && events[name]().triggerHandler(argLists);
+            }
         };
+        define.prototype.hasEvent = function (name) {
+            return this.__events__ && this.__events__[name];
+        };
+
+        //define.prototype.clone = function () {
+        //    var obj = define.NewObject.apply(window, arguments);
+        //    var prop = this.prop();
+        //    obj.prop(prop);
+        //    return obj;
+        //};
 
         define.prototype.isDisposed = false;
         define.prototype.dispose = function () {
