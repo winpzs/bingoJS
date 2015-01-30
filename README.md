@@ -4,5 +4,5 @@ bingoJS
 前端MVC
 
 
-- demo：演示,  如果本地打开(请使用IE8,9,10)
+- dome：[http://winpzs.github.io/bingoJS/mvc/index.html](http://winpzs.github.io/bingoJS/mvc/index.html)
 - src：原代码
